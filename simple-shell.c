@@ -55,14 +55,11 @@ int main(int argc, char *argv[]) {
         token = strtok(NULL, delimiter);
     }
 
-    for (int i = 0; i < num_tokens; i++) {
-        printf("Token %d: %s\n", i, tokens[i]);
-    }
-
     for (int i = 0; i < num_directories; i++) {
-        if (execv(directories[i], tokens) == -1) {
-            continue;
-        }
+        char path[1024];
+        snprintf(path, sizeof(path), "%s/%s", directories[i], tokens[0]);
+        printf("Trying to execute %s\n", path);
+        execv(path, tokens);
     }
     printf("Command not found\n");
 
