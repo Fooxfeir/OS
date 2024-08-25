@@ -54,6 +54,9 @@ int main(int argc, char *argv[]) {
 
         token = strtok(NULL, delimiter);
     }
+    num_tokens++;
+    tokens = realloc(tokens, (num_tokens) * sizeof(char*));
+    tokens[num_tokens - 1] = NULL;
 
     for (int i = 0; i < num_directories; i++) {
         char path[1024];
