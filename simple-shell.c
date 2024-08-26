@@ -3,8 +3,6 @@
 #include <string.h>
 #include <stdio.h>
 
-ssize_t my_getline(char **lineptr, size_t *n, FILE *stream);
-
 int main(int argc, char *argv[]) {
     if (argc != 2) {
         fprintf(stderr, "Usage: %s PATH\n", argv[0]);
@@ -33,13 +31,12 @@ int main(int argc, char *argv[]) {
             break;
         }
     }
-    //test
 
     printf("simple-shell$: ");
 
     char *line;
     size_t len = 0;
-    my_getline(&line, &len, stdin);
+    getline(&line, &len, stdin);
     line[strcspn(line, "\n")] = 0;
 
     char *delimiter = " ";
@@ -69,51 +66,3 @@ int main(int argc, char *argv[]) {
 
     free(line);
 }
-
-ssize_t my_getline(char **lineptr, size_t *n, FILE *stream) {
-    if (lineptr == NULL || n == NULL || stream == NULL) {
-        return -1;
-    }
-
-    char *buf = *lineptr;
-    size_t size = *n;
-
-    if (buf == NULL || size == 0) {
-        size = 128; // Initial buffer size
-        buf = malloc(size);
-        if (buf == NULL) {
-            return -1;
-        }
-    }
-
-    int c;
-    size_t len = 0;
-
-    while ((c = fgetc(stream)) != EOF) {
-        if (len + 1 >= size) {
-            size *= 2;
-            char *new_buf = realloc(buf, size);
-            if (new_buf == NULL) {
-                free(buf);
-                return -1;
-            }
-            buf = new_buf;
-        }
-        buf[len++] = c;
-        if (c == '\n') {
-            break;
-        }
-    }
-
-    if (len == 0) {
-        free(buf);
-        return -1;
-    }
-
-        buf[len] = '\0';
-    *lineptr = buf;
-    *n = size;
-
-    return len;
-}
-
