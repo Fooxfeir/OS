@@ -1,3 +1,6 @@
+//Guilhermo Mocelim - 223325
+//Pedro Bernardo Calou - 186711
+
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
@@ -59,10 +62,14 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < num_directories; i++) {
         char path[1024];
         snprintf(path, sizeof(path), "%s/%s", directories[i], tokens[0]);
-        printf("Trying to execute %s\n", path);
         execv(path, tokens);
     }
     printf("Command not found\n");
 
     free(line);
+    for (int i = 0; i < num_directories; i++) {
+        free(directories[i]);
+    }
+    free(directories);
+    free(tokens);
 }
