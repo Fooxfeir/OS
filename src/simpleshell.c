@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/wait.h>
 
 #define TRUE 1
 #define FALSE 0
@@ -216,9 +217,7 @@ char *strcat_with_separator(const char *first_str, const char *second_str, char 
  * @param args         An array of argument strings to pass to the command.
  * @return             1 if the command was found and executed, 0 otherwise.
  */
-int execute_command(char **directories, int num_directories, char **args) {
-    int command_found = 0;
-    
+int execute_command(char **directories, int num_directories, char **args) {    
     for (int i = 0; i < num_directories; i++) {
         // Construct the full path for the command
         char *command_path = strcat_with_separator(directories[i], args[0], '/');
@@ -242,7 +241,7 @@ int execute_command(char **directories, int num_directories, char **args) {
         free(command_path);
     }
 
-    return command_found;
+    return 0;
 }
 
 
@@ -250,8 +249,9 @@ int main(int argc, char *argv[]) {
     char *paths = argv[1];
     int num_dirs;
     char **dirs = split_string(paths, ':', &num_dirs);
+    const char **nonModifiableDirs = (const char **) dirs;
 
-    if (check_paths_exist(dirs, num_dirs)) {
+    if (check_paths_exist(nonModifiableDirs, num_dirs)) {
         return 1;
     }
 
@@ -262,25 +262,28 @@ int main(int argc, char *argv[]) {
         printf("simple-shell$: ");
         arg_values = read_command_line_input(&arg_count);
 
-        if (arg_count == 0) { // ENTER
+        if (arg_values[0] == NULL) { // ENTER
             continue;
         }
         else if (!strcmp(arg_values[0], "exit")) {
             exit(0);
         }
 
+        //Details what the parent process should do
         if (fork() != 0) { 
             if(strcmp(arg_values[arg_count - 1], "&") != 0){
                 int status;
                 waitpid(-1, &status, 0);
             }
         }
+        //Details what the child should do
         else {
             if (!strcmp(arg_values[arg_count - 1], "&")) {
                 arg_values[arg_count - 1] = NULL;
             }
-            if (execute_command(dirs, num_dirs, arg_values)) {
+            if (!execute_command(dirs, num_dirs, arg_values)) {
                 printf("Comando não encontrado.\n");
+                return 1;
             }
         }
     }
